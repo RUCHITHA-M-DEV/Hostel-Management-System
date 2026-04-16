@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        .hero-banner {
+            background: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1400&q=80') center/cover no-repeat;
+            border-radius: 16px; position: relative; padding: 3rem 2.5rem;
+            margin-bottom: 2rem; overflow: hidden; color: #fff;
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(15,52,96,0.82), rgba(83,52,131,0.7));
+            border-radius: 16px;
+        }
+        .hero-content { position: relative; z-index: 1; }
+        .hero-content h1 { font-size: 1.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .hero-content p  { opacity: 0.85; font-size: 0.95rem; }
+        .stat-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+        .stat-icon.blue   { color: #0f3460; }
+        .stat-icon.purple { color: #533483; }
+        .stat-icon.green  { color: #11998e; }
+        .quick-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .quick-link-card {
+            flex: 1; min-width: 150px; background: #fff; border-radius: 12px;
+            padding: 1.3rem 1.2rem; text-align: center; text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
+            border-bottom: 3px solid #0f3460; color: #1a1a2e;
+        }
+        .quick-link-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); color: #0f3460; }
+        .quick-link-card i { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; color: #0f3460; }
+        .quick-link-card:nth-child(2) { border-bottom-color: #533483; }
+        .quick-link-card:nth-child(2) i { color: #533483; }
+        .quick-link-card:nth-child(3) { border-bottom-color: #11998e; }
+        .quick-link-card:nth-child(3) i { color: #11998e; }
+        .quick-link-card span { font-size: 0.88rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand"><i class="fa-solid fa-building-columns" style="margin-right:0.5rem;"></i>Hostel Management</div>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/student/dashboard}"><i class="fa fa-gauge" style="margin-right:0.3rem;"></i>Dashboard</a></li>
+        <li><a th:href="@{/student/rooms}"><i class="fa fa-door-open" style="margin-right:0.3rem;"></i>Rooms</a></li>
+        <li><a th:href="@{/student/complaints}"><i class="fa fa-triangle-exclamation" style="margin-right:0.3rem;"></i>Complaints</a></li>
+        <li><a th:href="@{/student/payment}"><i class="fa fa-credit-card" style="margin-right:0.3rem;"></i>Payments</a></li>
+        <li>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-link"><i class="fa fa-right-from-bracket" style="margin-right:0.3rem;"></i>Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<div class="container">
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h1><i class="fa fa-hand-wave" style="margin-right:0.5rem;"></i>Welcome, <span sec:authentication="name">Student</span>!</h1>
+            <p>Here's a quick overview of your hostel status today.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa fa-bed"></i></div>
+            <h3>Room Status</h3>
+            <p class="stat-number" th:if="${currentAllocation}" style="font-size:1.2rem;" th:text="'Room ' + ${currentAllocation.room.roomNumber}"></p>
+            <p class="stat-number" th:unless="${currentAllocation}" style="font-size:1.1rem;color:#cb2d3e;">Not Allocated</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fa fa-indian-rupee-sign"></i></div>
+            <h3>Pending Payments</h3>
+            <p class="stat-number" th:text="${pendingAmount != null ? 'Rs. ' + pendingAmount : 'Rs. 0'}">Rs. 0</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fa fa-circle-exclamation"></i></div>
+            <h3>Open Complaints</h3>
+            <p class="stat-number" th:text="${openComplaints}">0</p>
+        </div>
+    </div>
+
+    <h2 style="font-size:1.1rem;margin-bottom:1rem;">Quick Actions</h2>
+    <div class="quick-links">
+        <a th:href="@{/student/rooms}" class="quick-link-card">
+            <i class="fa fa-door-open"></i>
+            <span>Browse Rooms</span>
+        </a>
+        <a th:href="@{/student/complaints}" class="quick-link-card">
+            <i class="fa fa-triangle-exclamation"></i>
+            <span>Submit Complaint</span>
+        </a>
+        <a th:href="@{/student/payment}" class="quick-link-card">
+            <i class="fa fa-credit-card"></i>
+            <span>View Payments</span>
+        </a>
+    </div>
+</div>
+</body>
+</html>

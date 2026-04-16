@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Complaints - Warden</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand">Hostel Management - Warden</div>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/warden/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/warden/allocations}">Allocations</a></li>
+        <li><a th:href="@{/warden/complaints}">Complaints</a></li>
+        <li>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-link">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<div class="container">
+    <h2>All Complaints</h2>
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="complaint : ${complaints}">
+                <td th:text="${complaint.student.fullName}"></td>
+                <td th:text="${complaint.title}"></td>
+                <td th:text="${complaint.category}"></td>
+                <td><span th:class="'badge badge-' + ${complaint.status.name().toLowerCase()}" th:text="${complaint.status}"></span></td>
+                <td th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy')}"></td>
+                <td>
+                    <form th:action="@{/warden/complaints/update/{id}(id=${complaint.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <select name="status" class="form-control form-control-sm mb-1">
+                            <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}"
+                                    th:selected="${st == complaint.status}"></option>
+                        </select>
+                        <input type="text" name="remarks" class="form-control form-control-sm mb-1" placeholder="Remarks"
+                               th:value="${complaint.wardenRemarks}"/>
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(complaints)}">
+                <td colspan="6" class="text-center">No complaints found.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

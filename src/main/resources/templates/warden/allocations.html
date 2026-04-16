@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Room Allocations - Warden</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand">Hostel Management - Warden</div>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/warden/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/warden/allocations}">Allocations</a></li>
+        <li><a th:href="@{/warden/complaints}">Complaints</a></li>
+        <li>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-link">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<div class="container">
+    <h2>Room Allocations</h2>
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+    <div th:if="${errorMsg}" class="alert alert-danger" th:text="${errorMsg}"></div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Room</th>
+                <th>Type</th>
+                <th>Allocated On</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="alloc : ${allocations}">
+                <td th:text="${alloc.student.fullName}"></td>
+                <td th:text="${alloc.room.roomNumber}"></td>
+                <td th:text="${alloc.room.roomType}"></td>
+                <td th:text="${alloc.allocationDate}"></td>
+                <td><span th:class="'badge badge-' + ${alloc.status.name().toLowerCase()}" th:text="${alloc.status}"></span></td>
+                <td>
+                    <form th:if="${alloc.status.name() == 'ACTIVE'}" th:action="@{/warden/allocations/vacate/{id}(id=${alloc.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Vacate this room?')">Vacate</button>
+                    </form>
+                    <span th:if="${alloc.status.name() != 'ACTIVE'}">-</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(allocations)}">
+                <td colspan="6" class="text-center">No allocations found.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
