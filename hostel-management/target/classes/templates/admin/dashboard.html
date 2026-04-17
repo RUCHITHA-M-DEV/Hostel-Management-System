@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        .hero-banner {
+            background: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1400&q=80') center/cover no-repeat;
+            border-radius: 16px; position: relative; padding: 3rem 2.5rem;
+            margin-bottom: 2rem; overflow: hidden; color: #fff;
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(26,26,46,0.88), rgba(83,52,131,0.75));
+            border-radius: 16px;
+        }
+        .hero-content { position: relative; z-index: 1; }
+        .hero-content h1 { font-size: 1.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .hero-content p  { opacity: 0.85; font-size: 0.95rem; }
+        .stat-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+        .stat-icon.blue   { color: #0f3460; }
+        .stat-icon.purple { color: #533483; }
+        .stat-icon.green  { color: #11998e; }
+        .stat-icon.orange { color: #f7971e; }
+        .stat-icon.red    { color: #cb2d3e; }
+        .quick-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .quick-link-card {
+            flex: 1; min-width: 140px; background: #fff; border-radius: 12px;
+            padding: 1.3rem 1.2rem; text-align: center; text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
+            border-bottom: 3px solid #0f3460; color: #1a1a2e;
+        }
+        .quick-link-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); color: #0f3460; }
+        .quick-link-card i { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; color: #0f3460; }
+        .quick-link-card:nth-child(2) { border-bottom-color: #533483; }
+        .quick-link-card:nth-child(2) i { color: #533483; }
+        .quick-link-card:nth-child(3) { border-bottom-color: #11998e; }
+        .quick-link-card:nth-child(3) i { color: #11998e; }
+        .quick-link-card:nth-child(4) { border-bottom-color: #f7971e; }
+        .quick-link-card:nth-child(4) i { color: #f7971e; }
+        .quick-link-card span { font-size: 0.85rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand"><i class="fa-solid fa-building-columns" style="margin-right:0.5rem;"></i>Hostel Management — Admin</div>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/dashboard}"><i class="fa fa-gauge" style="margin-right:0.3rem;"></i>Dashboard</a></li>
+        <li><a th:href="@{/admin/users}"><i class="fa fa-users" style="margin-right:0.3rem;"></i>Users</a></li>
+        <li><a th:href="@{/admin/rooms}"><i class="fa fa-door-open" style="margin-right:0.3rem;"></i>Rooms</a></li>
+        <li><a th:href="@{/admin/payments}"><i class="fa fa-credit-card" style="margin-right:0.3rem;"></i>Payments</a></li>
+        <li>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-link"><i class="fa fa-right-from-bracket" style="margin-right:0.3rem;"></i>Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<div class="container">
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h1><i class="fa fa-chart-line" style="margin-right:0.5rem;"></i>Admin Dashboard</h1>
+            <p>Full system overview — manage students, rooms, payments and more.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa fa-users"></i></div>
+            <h3>Total Students</h3>
+            <p class="stat-number" th:text="${totalStudents}">0</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fa fa-door-open"></i></div>
+            <h3>Total Rooms</h3>
+            <p class="stat-number" th:text="${totalRooms}">0</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fa fa-circle-check"></i></div>
+            <h3>Available Rooms</h3>
+            <p class="stat-number" th:text="${availableRooms}">0</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fa fa-triangle-exclamation"></i></div>
+            <h3>Pending Complaints</h3>
+            <p class="stat-number" th:text="${pendingComplaints}">0</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fa fa-indian-rupee-sign"></i></div>
+            <h3>Total Collected</h3>
+            <p class="stat-number" style="font-size:1.5rem;" th:text="'Rs. ' + ${totalCollected}">Rs. 0</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="fa fa-clock"></i></div>
+            <h3>Pending Payments</h3>
+            <p class="stat-number" th:text="${pendingPayments}">0</p>
+        </div>
+    </div>
+
+    <h2 style="font-size:1.1rem;margin-bottom:1rem;">Quick Actions</h2>
+    <div class="quick-links">
+        <a th:href="@{/admin/users}" class="quick-link-card">
+            <i class="fa fa-users"></i>
+            <span>Manage Users</span>
+        </a>
+        <a th:href="@{/admin/rooms}" class="quick-link-card">
+            <i class="fa fa-door-open"></i>
+            <span>Manage Rooms</span>
+        </a>
+        <a th:href="@{/admin/payments}" class="quick-link-card">
+            <i class="fa fa-credit-card"></i>
+            <span>Payments</span>
+        </a>
+        <a th:href="@{/warden/allocations}" class="quick-link-card">
+            <i class="fa fa-key"></i>
+            <span>Allocations</span>
+        </a>
+    </div>
+</div>
+</body>
+</html>

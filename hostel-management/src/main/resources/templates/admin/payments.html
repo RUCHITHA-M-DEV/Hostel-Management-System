@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payments - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand">Hostel Management - Admin</div>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/rooms}">Rooms</a></li>
+        <li><a th:href="@{/admin/payments}">Payments</a></li>
+        <li>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-link">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<div class="container">
+    <h2>Payment Management</h2>
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+
+    <div class="stat-card mb-4">
+        <h4>Total Revenue Collected: <span th:text="'Rs. ' + ${totalCollected}"></span></h4>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header"><h4>Create Payment</h4></div>
+        <div class="card-body">
+            <form action="/admin/payments/create" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Student</label>
+                        <select name="studentId" class="form-control">
+                            <option th:each="s : ${students}" th:value="${s.id}" th:text="${s.fullName + ' (' + s.username + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Payment Type</label>
+                        <select name="paymentType" class="form-control">
+                            <option th:each="type : ${paymentTypes}" th:value="${type}" th:text="${type}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+                        <label>Amount (Rs.)</label>
+                        <input type="number" name="amount" class="form-control" step="0.01" required/>
+                    </div>
+                    <div class="form-group col">
+                        <label>Due Date</label>
+                        <input type="date" name="dueDate" class="form-control" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <input type="text" name="remarks" class="form-control"/>
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Paid On</th>
+                <th>Transaction ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="payment : ${payments}">
+                <td th:text="${payment.student.fullName}"></td>
+                <td th:text="${payment.paymentType}"></td>
+                <td th:text="'Rs. ' + ${payment.amount}"></td>
+                <td th:text="${payment.dueDate}"></td>
+                <td><span th:class="'badge badge-' + ${payment.status.name().toLowerCase()}" th:text="${payment.status}"></span></td>
+                <td th:text="${payment.paidDate != null ? payment.paidDate : '-'}"></td>
+                <td th:text="${payment.transactionId != null ? payment.transactionId : '-'}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(payments)}">
+                <td colspan="7" class="text-center">No payments found.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
